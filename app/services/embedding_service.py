@@ -2,10 +2,17 @@ from sentence_transformers import SentenceTransformer
 
 MODEL_NAME = "intfloat/multilingual-e5-small"
 
-model = SentenceTransformer(MODEL_NAME)
+model = None
+
+
+def get_model() -> SentenceTransformer:
+    global model
+    if model is None:
+        model = SentenceTransformer(MODEL_NAME)
+    return model
 
 def embed_review(text: str):
-    return model.encode(f"passage: {text}")
+    return get_model().encode(f"passage: {text}")
 
 def embed_query(question: str):
-    return model.encode(f"query: {question}")
+    return get_model().encode(f"query: {question}")

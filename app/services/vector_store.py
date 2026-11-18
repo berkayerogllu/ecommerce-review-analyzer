@@ -6,7 +6,7 @@ from app.models.review import Review
 from app.services.embedding_service import embed_query
 from qdrant_client.models import Filter, FieldCondition, MatchValue
 from typing import List
-from app.services.embedding_service import model
+from app.services.embedding_service import get_model
 
 
 def store_review(review: Review):
@@ -51,7 +51,7 @@ def store_reviews(reviews: List[Review]):
     if not reviews:
         return
 
-    vectors = model.encode(
+    vectors = get_model().encode(
         [f"passage: {review.comment}" for review in reviews]
     )
 
@@ -72,3 +72,22 @@ def store_reviews(reviews: List[Review]):
         collection_name=COLLECTION_NAME,
         points=points
     )
+
+def product_has_reviews(product_id: int) -> bool:
+    results = client.scroll(
+        collection_name=COLLECTION_NAME,
+        scroll_filter=Filter(
+            must=[
+                FieldCondition(
+                    key="product_id",
+                    match=MatchValue(value=product_id)
+                )
+            ]
+        ),
+        limit=1,
+        with_payload=False,
+        with_vectors=False
+    )
+
+    points, _ = results
+    return len(points) > 0

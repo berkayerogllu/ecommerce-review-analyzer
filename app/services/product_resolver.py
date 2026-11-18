@@ -9,6 +9,8 @@ def validate_trendyol_url(product_url: str) -> bool:
     return (
         parsed_url.scheme == "https"
         and parsed_url.hostname in ("trendyol.com", "www.trendyol.com")
+        and not parsed_url.username
+        and not parsed_url.password
     )
 
 
